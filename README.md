@@ -1,6 +1,6 @@
 # R Shiny App: "Muscle Reference Values from Thoracic and Abdominal CT for Sarcopenia Assessment: The Framingham Heart Study"
 
-Visit [muscle-metrics.mgh.harvard.edu](https://muscle-metrics.mgh.harvard.edu) for an online version of this application.
+Visit [muscle-metrics.mgh.harvard.edu](https://muscle-metrics.mgh.harvard.edu) for an online version of this application. Please cite the [associated publication](#associated-publication) when using the reference values.
 
 ## The App
 For the publication "Muscle Reference Values from Thoracic and Abdominal CT for Sarcopenia Assessment: The Framingham Heart Study", statistical models were created using the LMSP method to facilitate the comparison of individual measurements to the study cohort. We refer to the publication for a documentation on how models were created.
@@ -21,7 +21,7 @@ Visit [muscle-metrics.mgh.harvard.edu](https://muscle-metrics.mgh.harvard.edu) f
 ##### Alternative: Running in R Studio:
 1. Install [R and R Studio](https://posit.co/download/rstudio-desktop/) (or any other R IDE of choice)
 2. In R, run: 
-	1. `install.packages("shiny")`
+	1. `install.packages(c("shiny", "gamlss", "tidyverse"))`
 	2. `runGitHub(repo="FintelmannLabDevelopmentTeam/MuscleReferenceValuesFHS_ShinyApp", ref="master")`
 	3. The app should now be downloaded and then run on your system.
 
@@ -43,10 +43,12 @@ Legend:
 1. The light blue box marks the result section - the **z-score** and P(x<=measurement) are given.
 2. On the right, two graphical representations of where the measurement falls compared to the estimated population distribution are shown.
 
+#### Batch Processing Data
 
+A code example of how to perform batch processing using R is available in `batch_processing_data.R`.
 
 ## Contact
 This tool was built by P. Erik Tonnesen. Please contact him or the corresponding author of the associated publication if questions or problems should arise.
 
-## Associated publication:
-"Muscle Reference Values from Thoracic and Abdominal CT for Sarcopenia Assessment: The Framingham Heart Study"
+## Associated publication
+Tonnesen, P. Erik; Mercaldo, Nathaniel D. PhD; Tahir, Ismail MB, BCh, BAO; Dietrich, Anna-Sophia W.; Amayri, Wael BSc; Graur, Alexander; Allaire, Brett BSc; Bouxsein, Mary L. PhD; Samelson, Elizabeth J. PhD; Kiel, Douglas P. MD, MPH; Fintelmann, Florian J. MD. Muscle Reference Values From Thoracic and Abdominal CT for Sarcopenia Assessment: The Framingham Heart Study. Investigative Radiology ():10.1097/RLI.0000000000001012, September 19, 2023. | [DOI: 10.1097/RLI.0000000000001012](doi.org/10.1097/RLI.0000000000001012)

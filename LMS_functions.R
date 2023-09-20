@@ -31,8 +31,8 @@ get_z <-
     #'
     #' @param x A given measurement of an individual.
     #' @param age Age of the individual measured.
-    #' @param metric The muscle metric measured
-    #' @param sex The participant sex
+    #' @param metric The muscle metric measured.
+    #' @param sex The participant sex.
     #' @param lvl The vertebral level.
     #'
     #' @return the z score.
@@ -43,7 +43,7 @@ get_z <-
     if (age < 38 | age > 80) {
       return(NULL)
     }
-    
+
     z <- round(z.scores(model,  x = age, y = x)[1], 2)
     return(z)
   }
