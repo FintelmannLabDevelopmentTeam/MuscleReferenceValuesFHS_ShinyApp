@@ -5,10 +5,28 @@ library(tidyverse)
 #List of 32 models stored as metric_sex_lvl (e.g., CSMA_Female_T5)
 load("resources/models_anonymized_2022-12-10.RData")
 
+#T12 models come as two separate scan-protocol cohorts (abdomen 5mm / thorax
+#2.5mm slices) that each use plain "T12" as their level suffix. Load each
+#into its own env, rename to metric_sex_T12_abdomen / metric_sex_T12_thorax
+#so they merge into models_anon without colliding, then merge in.
+load_t12_cohort <- function(path, level_suffix) {
+  e <- new.env()
+  load(path, envir = e)
+  models <- e$main_cohort_models
+  names(models) <- sub("_T12$", paste0("_", level_suffix), names(models))
+  return(models)
+}
+
+models_anon <- c(
+  models_anon,
+  load_t12_cohort("resources/models_anonymized_2026-08-09_T12_abdomen.RData", "T12_abdomen"),
+  load_t12_cohort("resources/models_anonymized_2026-08-09_T12_thorax.RData", "T12_thorax")
+)
+
 choose_model <-
-  function(metric = c("CSMA", "SMI", "SMRA", "SMG"),
+  function(metric = c("CSMA", "SMI", "SMRA", "SMG", "SMI_height", "CSIMATA", "IMAT_index", "CSSAT", "SAT_index", "Fatty_muscle_fraction"),
            sex = c("Female", "Male"),
-           lvl = c("T5", "T8", "T10", "L3")) {
+           lvl = c("T5", "T8", "T10", "L3", "T12_abdomen", "T12_thorax")) {
     #' Extract correct model
     #'
     #' @param metric The muscle metric measured
@@ -24,9 +42,9 @@ choose_model <-
 get_z <-
   function(x,
            age,
-           metric = c("CSMA", "SMI", "SMRA", "SMG"),
+           metric = c("CSMA", "SMI", "SMRA", "SMG", "SMI_height", "CSIMATA", "IMAT_index", "CSSAT", "SAT_index", "Fatty_muscle_fraction"),
            sex = c("Female", "Male"),
-           lvl = c("T5", "T8", "T10", "L3")) {
+           lvl = c("T5", "T8", "T10", "L3", "T12_abdomen", "T12_thorax")) {
     #' Calculate z score of a given measurement.
     #'
     #' @param x A given measurement of an individual.
@@ -51,9 +69,9 @@ get_z <-
 get_percentile <-
   function(x,
            age,
-           metric = c("CSMA", "SMI", "SMRA", "SMG"),
+           metric = c("CSMA", "SMI", "SMRA", "SMG", "SMI_height", "CSIMATA", "IMAT_index", "CSSAT", "SAT_index", "Fatty_muscle_fraction"),
            sex = c("Female", "Male"),
-           lvl = c("T5", "T8", "T10", "L3")) {
+           lvl = c("T5", "T8", "T10", "L3", "T12_abdomen", "T12_thorax")) {
     #' Calculate percentile of a given measurement.
     #'
     #' @param x A given measurement of an individual.
@@ -111,7 +129,7 @@ get_percentile <-
     return(centile)
   }
 
-get_metric_label <- function(metric = c("CSMA", "SMI", "SMRA", "SMG")){
+get_metric_label <- function(metric = c("CSMA", "SMI", "SMRA", "SMG", "SMI_height", "CSIMATA", "IMAT_index", "CSSAT", "SAT_index", "Fatty_muscle_fraction")){
   #' Get ggplot label for each metric.
   #' 
   #' @param metric The muscle metric measured
@@ -122,7 +140,14 @@ get_metric_label <- function(metric = c("CSMA", "SMI", "SMRA", "SMG")){
     CSMA=expression('Cross-Sectional Muscle Area (cm'^2 * ')'),
     SMI = expression('Skeletal Muscle Index (cm'^2 * '/m'^2*')'),
     SMRA = 'Skeletal Muscle Radio-Attenuation (HU)',
-    SMG = expression('Skeletal Muscle Gauge (HU * cm'^2 * '/m'^2*')')
+    SMG = expression('Skeletal Muscle Gauge (HU * cm'^2 * '/m'^2*')'),
+
+    SMI_height = expression('Skeletal Muscle Index height-normalized (cm'^2 * '/m)'),
+    CSIMATA = expression('Cross-Sectional IMAT Area (cm'^2 * ')'),
+    IMAT_index = expression('IMAT Index (cm'^2 * '/m'^2*')'),
+    CSSAT = expression('Cross-Sectional Subcutaneous Adipose Tissue Area T12 (cm'^2 * ')'),
+    SAT_index = expression('Subcutaneous Adipose Tissue Index T12 (cm'^2 * '/m'^2*')'),
+    Fatty_muscle_fraction = 'Fatty Muscle Fraction'
   )
   
   if(metric %in% names(metrics_labs)){
@@ -135,9 +160,9 @@ get_metric_label <- function(metric = c("CSMA", "SMI", "SMRA", "SMG")){
 plot_LMS_curves_with_indicator <-
   function(x,
            age,
-           metric = c("CSMA", "SMI", "SMRA", "SMG"),
+           metric = c("CSMA", "SMI", "SMRA", "SMG", "SMI_height", "CSIMATA", "IMAT_index", "CSSAT", "SAT_index", "Fatty_muscle_fraction"),
            sex = c("Female", "Male"),
-           lvl = c("T5", "T8", "T10", "L3")) {
+           lvl = c("T5", "T8", "T10", "L3", "T12_abdomen", "T12_thorax")) {
     #' Plot LMS centile curves with indicator.
     #'
     #' @param x A given measurement of an individual.
@@ -157,9 +182,9 @@ plot_LMS_curves_with_indicator <-
 plot_dist_at_age <-
   function(
            age,
-           metric = c("CSMA", "SMI", "SMRA", "SMG"),
+           metric = c("CSMA", "SMI", "SMRA", "SMG", "SMI_height", "CSIMATA", "IMAT_index", "CSSAT", "SAT_index", "Fatty_muscle_fraction"),
            sex = c("Female", "Male"),
-           lvl = c("T5", "T8", "T10", "L3")) {
+           lvl = c("T5", "T8", "T10", "L3", "T12_abdomen", "T12_thorax")) {
     #' Plot the LMS distribution at a given age.
     #' 
     #' @param age Age of the individual measured.
@@ -378,9 +403,9 @@ get_plotting_dataframe <-
     return(centile_data)
   }
 
-get_LMS_curve_plot <- function(metric = c("CSMA", "SMI", "SMRA", "SMG"),
+get_LMS_curve_plot <- function(metric = c("CSMA", "SMI", "SMRA", "SMG", "SMI_height", "CSIMATA", "IMAT_index", "CSSAT", "SAT_index", "Fatty_muscle_fraction"),
                                sex = c("Female", "Male"),
-                               lvl = c("T5", "T8", "T10", "L3")) {
+                               lvl = c("T5", "T8", "T10", "L3", "T12_abdomen", "T12_thorax")) {
   #' Plot the LMS distribution at a given age.
   #'
   #' @param age Age of the individual measured.
@@ -454,9 +479,9 @@ rowwise_z <- function(row){
   #Sanity checks:
   if(any(is.na(x), is.na(metric), is.na(lvl), is.na(sex), is.na(age))){return(NA)}
   if(x>0 & age >= 38 & age <= 80 & 
-     metric %in% c("CSMA", "SMI", "SMRA", "SMG") &
+     metric %in% c("CSMA", "SMI", "SMRA", "SMG", "SMI_height", "CSIMATA", "IMAT_index", "CSSAT", "SAT_index", "Fatty_muscle_fraction") &
      sex %in% c("Female", "Male") & 
-     lvl %in% c("T5", "T8", "T10", "L3")){
+     lvl %in% c("T5", "T8", "T10", "L3", "T12_abdomen", "T12_thorax")){
         return(get_z(x,
              age,
              metric,
@@ -479,9 +504,9 @@ rowwise_percentile <- function(row){
   #Sanity checks:
   if(any(is.na(x), is.na(metric), is.na(lvl), is.na(sex), is.na(age))){return(NA)}
   if(x>0 & age >= 38 & age <= 80 & 
-     metric %in% c("CSMA", "SMI", "SMRA", "SMG") &
+     metric %in% c("CSMA", "SMI", "SMRA", "SMG", "SMI_height", "CSIMATA", "IMAT_index", "CSSAT", "SAT_index", "Fatty_muscle_fraction") &
      sex %in% c("Female", "Male") & 
-     lvl %in% c("T5", "T8", "T10", "L3")){
+     lvl %in% c("T5", "T8", "T10", "L3", "T12_abdomen", "T12_thorax")){
     
     return(get_percentile(x,
                  age,
