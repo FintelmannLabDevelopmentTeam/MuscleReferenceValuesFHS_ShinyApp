@@ -20,7 +20,7 @@ load_t12_cohort <- function(path, level_suffix) {
 models_anon <- c(
   models_anon,
   load_t12_cohort("resources/models_anonymized_2026-10-28_T12_abdomen.RData", "T12_abdomen"),
-  load_t12_cohort("resources/models_anonymized_2026-10-28_T12_thorax.RData", "T12_thorax")
+  load_t12_cohort("resources/models_anonymized_2026-10-29_T12_thorax.RData", "T12_thorax")
 )
 
 choose_model <-
