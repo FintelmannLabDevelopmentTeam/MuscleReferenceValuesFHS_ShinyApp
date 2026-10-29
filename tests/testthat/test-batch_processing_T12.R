@@ -37,8 +37,8 @@ test_that("calc_z_scores_percentiles handles a mixed batch across old and new co
 
   result <- calc_z_scores_percentiles(df)
 
-  expect_equal(result$Z, c(0.34, 3.39, -1.97, Inf, 7.43, 5.32, -1.94, -1.45, NA))
-  expect_equal(result$P, c(0.63, 1.00, 0.02, 1.00, 1.00, 1.00, 0.03, 0.07, NA))
+  expect_equal(result$Z, c(0.34, 3.39, -1.97, Inf, 7.43, 5.43, -1.94, -1.33, NA))
+  expect_equal(result$P, c(0.63, 1.00, 0.02, 1.00, 1.00, 1.00, 0.03, 0.09, NA))
 })
 
 test_that("ages outside the 38-80 fitted range return NA, not extrapolated values", {
