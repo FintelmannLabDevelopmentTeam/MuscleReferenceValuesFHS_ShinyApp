@@ -198,8 +198,8 @@ plot_dist_at_age <-
     
     #Get distribution family:
     family <- model$family[1]
-    #Get name of corresponding density function
-    fname <- paste("d", family, sep = '')
+    #Get corresponding density function (stat_function needs the function itself, not its name)
+    fname <- match.fun(paste("d", family, sep = ''))
     #and corresponding quantile function
     qfun <-  paste('q', family, sep='')
     #Model parameters:

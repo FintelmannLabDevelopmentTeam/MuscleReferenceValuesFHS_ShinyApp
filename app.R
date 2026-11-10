@@ -32,9 +32,17 @@ ui <- fluidPage(
                               "Skeletal Muscle Gauge (SMG, [HU*cm2/m2])")
                   ),
       
-      selectInput("lvl", "Vertebral Level:", 
-                  choices=c("T5", "T8", "T10", "L3"), selected= NULL),
-      
+      selectInput("lvl", "Vertebral Level:",
+                  choices=c("T5", "T8", "T10", "L3", "T12"), selected= NULL),
+
+      #T12 has separate models for abdominal and thoracic CT
+      conditionalPanel(
+        condition = "input.lvl == 'T12'",
+        selectInput("cohort", "Scan type:",
+                    choices = c("Abdomen (5mm slices)" = "abdomen",
+                                "Thorax (2.5mm slices)" = "thorax"))
+      ),
+
       radioButtons("sex", "Sex:", 
                    choices=c("Female", "Male"),
                    selected=NULL),
@@ -114,17 +122,22 @@ server <- function(input, output, session){
   })
   
   metric <- reactive({get_metric_from_string(input$SelectedMetric)})
-  
+
+  #Level used to pick the model: T12 models are stored as T12_abdomen / T12_thorax
+  model_lvl <- reactive({
+    if (input$lvl == "T12") paste0("T12_", input$cohort) else input$lvl
+  })
+
   z_score <- reactive({
-    get_z(measurement_r(), age_r(), metric(), input$sex, input$lvl)
+    get_z(measurement_r(), age_r(), metric(), input$sex, model_lvl())
   })
-  
+
   LMS_plot <- reactive({
-    get_LMS_curve_plot(metric(), input$sex, input$lvl)
+    get_LMS_curve_plot(metric(), input$sex, model_lvl())
   })
-  
+
   output$Z_Score_String <- renderText({
-    paste("Z Score is: ", z_score(), ';   P(x <= ', measurement_r(), ') = ', get_percentile(measurement_r(), age_r(), metric(), input$sex, input$lvl), sep='')
+    paste("Z Score is: ", z_score(), ';   P(x <= ', measurement_r(), ') = ', get_percentile(measurement_r(), age_r(), metric(), input$sex, model_lvl()), sep='')
   })
   
   output$SelectedMetric <- renderText(
@@ -148,7 +161,7 @@ server <- function(input, output, session){
   
   
   model_distribution_at_age <- reactive({
-    plot_dist_at_age(age_r(), get_metric_from_string(input$SelectedMetric), input$sex, input$lvl)
+    plot_dist_at_age(age_r(), get_metric_from_string(input$SelectedMetric), input$sex, model_lvl())
   })
   output$Z_Visualized <- renderPlot({
     model_distribution_at_age() + 
